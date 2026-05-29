@@ -130,3 +130,95 @@ pub fn energy_drift(
         .map(|(q, p)| ((system.hamiltonian(*q, *p) - e0) / e0.abs().max(1e-10)).abs())
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_harmonic_oscillator_hamiltonian() {
+        let ho = HarmonicOscillator;
+        assert_eq!(ho.hamiltonian(1.0, 0.0), 0.5);
+        assert_eq!(ho.hamiltonian(0.0, 1.0), 0.5);
+    }
+
+    #[test]
+    fn test_harmonic_oscillator_equations() {
+        let ho = HarmonicOscillator;
+        assert_eq!(ho.dqdt(1.0, 2.0), 2.0);
+        assert_eq!(ho.dpdt(1.0, 2.0), -1.0);
+    }
+
+    #[test]
+    fn test_pendulum_hamiltonian() {
+        let p = Pendulum;
+        let h_bottom = p.hamiltonian(0.0, 0.0); // at rest, bottom
+        assert_eq!(h_bottom, -1.0); // -cos(0) = -1
+    }
+
+    #[test]
+    fn test_euler_step() {
+        let ho = HarmonicOscillator;
+        let euler = Integrator::Euler;
+        let (q, p) = euler.step(&ho, 1.0, 0.0, 0.01);
+        assert!(q > 1.0); // q += dt * p = 1.0
+        assert!(p < 0.0); // p -= dt * q
+    }
+
+    #[test]
+    fn test_verlet_step() {
+        let ho = HarmonicOscillator;
+        let verlet = Integrator::Verlet;
+        let (q, p) = verlet.step(&ho, 1.0, 0.0, 0.01);
+        assert!((q - 1.0).abs() < 0.1);
+    }
+
+    #[test]
+    fn test_yoshida_step() {
+        let ho = HarmonicOscillator;
+        let yoshida = Integrator::Yoshida;
+        let (q, p) = yoshida.step(&ho, 1.0, 0.0, 0.01);
+        assert!((q - 1.0).abs() < 0.1);
+    }
+
+    #[test]
+    fn test_run_trajectory_length() {
+        let ho = HarmonicOscillator;
+        let verlet = Integrator::Verlet;
+        let traj = run_trajectory(&ho, &verlet, 1.0, 0.0, 0.01, 100);
+        assert_eq!(traj.len(), 101); // initial + 100 steps
+    }
+
+    #[test]
+    fn test_symplectic_conservation() {
+        // Verlet should conserve energy much better than Euler for HO
+        let ho = HarmonicOscillator;
+        let dt = 0.01;
+        let steps = 1000;
+
+        let verlet = Integrator::Verlet;
+        let traj_v = run_trajectory(&ho, &verlet, 1.0, 0.0, dt, steps);
+        let drift_v = energy_drift(&ho, &traj_v);
+
+        let euler = Integrator::Euler;
+        let traj_e = run_trajectory(&ho, &euler, 1.0, 0.0, dt, steps);
+        let drift_e = energy_drift(&ho, &traj_e);
+
+        // Verlet drift should be much smaller than Euler
+        assert!(drift_v.last().unwrap() < drift_e.last().unwrap());
+    }
+
+    #[test]
+    fn test_integrator_names() {
+        assert_eq!(Integrator::Euler.name(), "Euler");
+        assert_eq!(Integrator::Verlet.name(), "Störmer-Verlet");
+        assert_eq!(Integrator::Yoshida.name(), "Yoshida (4th)");
+    }
+
+    #[test]
+    fn test_kepler_orbit() {
+        let k = KeplerOrbit;
+        // At q=1, H = 0 - 1 = -1
+        assert_eq!(k.hamiltonian(1.0, 0.0), -1.0);
+    }
+}

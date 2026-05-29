@@ -72,3 +72,38 @@ pub fn hexagram_sheaf(lines: &[bool; 6]) -> SimpleSheaf {
 
     SimpleSheaf { sections, restrictions }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_empty_sheaf_h0() {
+        let s = SimpleSheaf { sections: vec![], restrictions: vec![] };
+        assert_eq!(s.h0(), 0.0);
+    }
+
+    #[test]
+    fn test_single_section_sheaf() {
+        let s = SimpleSheaf { sections: vec![1.0], restrictions: vec![] };
+        assert_eq!(s.h0(), 1.0); // No restrictions = perfect agreement
+    }
+
+    #[test]
+    fn test_agreement_high() {
+        let s = SimpleSheaf {
+            sections: vec![1.0, 1.0, 1.0],
+            restrictions: vec![(0, 1, 1.0), (1, 2, 1.0), (0, 2, 1.0)],
+        };
+        // All sections agree
+        assert!(s.h0() > 0.0);
+    }
+
+    #[test]
+    fn test_empty_sheaf_h1() {
+        let s = SimpleSheaf { sections: vec![], restrictions: vec![] };
+        assert_eq!(s.h1(), 0.0);
+    }
+
+
+}

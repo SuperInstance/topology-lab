@@ -161,3 +161,43 @@ impl UnionFind {
         roots.len()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_simplex_creation() {
+        let s = Simplex::new(vec![2, 1, 3]);
+        assert_eq!(s.vertices, vec![1, 2, 3]); // sorted
+    }
+
+    #[test]
+    fn test_simplex_dimension() {
+        assert_eq!(Simplex::new(vec![0]).dimension(), 0);
+        assert_eq!(Simplex::new(vec![0, 1]).dimension(), 1);
+        assert_eq!(Simplex::new(vec![0, 1, 2]).dimension(), 2);
+    }
+
+    #[test]
+    fn test_simplex_faces() {
+        let tri = Simplex::new(vec![0, 1, 2]);
+        let faces = tri.faces();
+        assert_eq!(faces.len(), 3);
+    }
+
+    #[test]
+    fn test_simplex_contains() {
+        let tri = Simplex::new(vec![0, 1, 2]);
+        let edge = Simplex::new(vec![0, 1]);
+        let other = Simplex::new(vec![0, 3]);
+        assert!(tri.contains(&edge));
+        assert!(!tri.contains(&other));
+    }
+
+    #[test]
+    fn test_simplex_dedup() {
+        let s = Simplex::new(vec![1, 1, 2]);
+        assert_eq!(s.vertices, vec![1, 2]);
+    }
+}

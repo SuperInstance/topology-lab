@@ -129,3 +129,79 @@ pub fn conservation_score(progression: &[Chord]) -> f64 {
     let variance = tensions.iter().map(|t| (t - mean).powi(2)).sum::<f64>() / tensions.len() as f64;
     1.0 - variance.min(1.0)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_spectral_tension_empty() {
+        let chord = Chord { name: "empty".into(), pitches: vec![] };
+        assert_eq!(chord.spectral_tension(), 0.0);
+    }
+
+    #[test]
+    fn test_spectral_tension_single() {
+        let chord = Chord { name: "single".into(), pitches: vec![60.0] };
+        assert_eq!(chord.spectral_tension(), 0.0);
+    }
+
+    #[test]
+    fn test_spectral_tension_octave_low() {
+        let chord = Chord { name: "octave".into(), pitches: vec![60.0, 72.0] };
+        assert_eq!(chord.spectral_tension(), 0.0); // unison interval
+    }
+
+    #[test]
+    fn test_spectral_tension_tritone_high() {
+        let tritone = Chord { name: "tritone".into(), pitches: vec![60.0, 66.0] };
+        let fifth = Chord { name: "fifth".into(), pitches: vec![60.0, 67.0] };
+        assert!(tritone.spectral_tension() > fifth.spectral_tension());
+    }
+
+    #[test]
+    fn test_voice_leading_distance() {
+        let c1 = Chord { name: "C".into(), pitches: vec![60.0, 64.0, 67.0] };
+        let c2 = Chord { name: "C'".into(), pitches: vec![60.0, 64.0, 67.0] };
+        assert_eq!(c1.voice_leading_distance(&c2), 0.0);
+    }
+
+    #[test]
+    fn test_voice_leading_positive() {
+        let c1 = Chord { name: "C".into(), pitches: vec![60.0, 64.0] };
+        let c2 = Chord { name: "D".into(), pitches: vec![62.0, 66.0] };
+        assert!(c1.voice_leading_distance(&c2) > 0.0);
+    }
+
+    #[test]
+    fn test_ii_v_i_has_three_chords() {
+        let prog = ii_v_i();
+        assert_eq!(prog.len(), 3);
+    }
+
+    #[test]
+    fn test_pachelbel_has_eight_chords() {
+        let prog = pachelbel();
+        assert_eq!(prog.len(), 8);
+    }
+
+    #[test]
+    fn test_tension_curve_length() {
+        let prog = ii_v_i();
+        let curve = tension_curve(&prog, 100);
+        assert_eq!(curve.len(), 100);
+    }
+
+    #[test]
+    fn test_conservation_score_range() {
+        let prog = pachelbel();
+        let score = conservation_score(&prog);
+        assert!(score >= 0.0 && score <= 1.0);
+    }
+
+    #[test]
+    fn test_conservation_single_chord() {
+        let prog = vec![Chord { name: "C".into(), pitches: vec![60.0, 64.0, 67.0] }];
+        assert_eq!(conservation_score(&prog), 1.0);
+    }
+}

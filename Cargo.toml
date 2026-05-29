@@ -42,3 +42,4 @@ site-root = "target/site"
 site-pkg-dir = "pkg"
 style-file = "style/main.scss"
 assets-dir = "public"
+
