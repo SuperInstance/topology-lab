@@ -34,3 +34,5 @@ All computation is client-side, `no_std`-friendly Rust:
 ## License
 
 MIT
+
+Part of the [SuperInstance OpenConstruct](https://github.com/SuperInstance/OpenConstruct) ecosystem.
