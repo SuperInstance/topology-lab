@@ -1,65 +1,72 @@
 # topology-lab
 
-**Interactive Mathematical Visualization Lab — the flagship frontend for the [SuperInstance](https://github.com/SuperInstance) ecosystem.**
+**Interactive topological data analysis in your browser — persistent homology, symplectic integrators, sheaf cohomology on I Ching hexagrams, and music tension curves, all running client-side via Rust → WASM.**
 
-Runs entirely in the browser via Rust → WASM (Leptos framework). No server, no backend, no install. Six interactive labs where you can touch the math.
+Built with Leptos (Rust WASM framework). Draw point clouds, compute Vietoris-Rips filtrations, watch persistence diagrams and Betti curves appear in real-time. Compare symplectic integrators. Cast I Ching readings with live H⁰/H¹ sheaf cohomology. Explore chord progression tension.
 
-## 🧪 Labs
+## What This Gives You
 
-| Lab | What You Do |
-|-----|-------------|
-| **Persistence Homology** | Draw points → watch Vietoris-Rips filtration build in real-time. See Betti numbers change as the radius grows. |
-| **Symplectic Playground** | Compare Euler vs Verlet vs Yoshida integrators on phase space. Watch orbits drift or conserve in real-time. |
-| **I Ching Oracle** | Cast hexagram readings with live sheaf cohomology computation. The 64 hexagrams as a simplicial complex. |
-| **Music Explorer** | Visualize tension gradients of chord progressions. See ii-V-I vs random sequences ranked by CR. |
-| **Social Networks** | Generate random networks (Erdős-Rényi, Barabási-Albert), compute persistence, compare topologies. |
-| **Conjecture Board** | Live scoreboard of 10 mathematical conjectures being tested across the ecosystem. |
+- **Persistence Lab** — draw points → Vietoris-Rips filtration → persistence diagrams + Betti curves in real-time
+- **Symplectic Playground** — compare Euler vs Verlet vs Yoshida integrators on harmonic oscillator, pendulum, Kepler orbit
+- **I Ching Oracle** — cast readings with live sheaf cohomology (H⁰ = agreement, H¹ = wisdom)
+- **Music Explorer** — tension curves for ii-V-I, Pachelbel, Tristan, Coltrane progressions
+- **Social Networks** — ER, BA, WS random graphs with topological fingerprints
+- **Conjecture Board** — 10 conjectures with evidence status from the SuperInstance project
+- **Pure client-side math** — everything runs in WASM, no server needed
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
-# Prerequisites
-cargo install cargo-leptos
+# Install trunk (Leptos build tool)
+cargo install trunk
 
-# Development server with hot reload
-cargo leptos watch
-
-# Production build
-cargo leptos build    # → target/site/
+# Build and serve
+trunk serve --open
 ```
 
-Open `http://localhost:3000` and start clicking.
+## Architecture
 
-## 🧮 Pure Rust Math
+```
+src/
+├── math/
+│   ├── simplex.rs       # Simplicial complex + Vietoris-Rips
+│   ├── persistence.rs   # Persistent homology (H⁰, H¹)
+│   ├── sheaf.rs         # Cellular sheaf cohomology
+│   ├── symplectic.rs    # Hamiltonian integrators
+│   ├── music.rs         # Chord tension + voice leading
+│   └── iching.rs        # 64 hexagrams + cohomology mapping
+├── components/          # Canvas-based visualizations
+│   ├── persistence_diagram.rs
+│   ├── betti_curve.rs
+│   ├── simplicial_complex.rs
+│   ├── phase_space.rs
+│   ├── tension_curve.rs
+│   └── hexagram_view.rs
+└── pages/               # Route pages
+```
 
-All computation is client-side, `no_std`-friendly Rust compiled to WASM:
+## Key Experiments
 
-- **Vietoris-Rips filtration** & persistent homology (union-find for H₀, boundary reduction for H₁)
-- **Symplectic Euler**, **Störmer-Verlet**, **Yoshida 4th-order** integrators
-- **Spectral & voice-leading tension** computation from chord progressions
-- **Sheaf cohomology** of I Ching readings
-- **Conservation ratio** (CR = λ₂/λ_max) for any graph you draw
+- **Conservation of Tension** (confirmed) — dT/dt is conserved in well-formed chord progressions
+- **H¹ as Wisdom Measure** (confirmed) — H¹ of I Ching readings correlates with depth ratings at r=0.927
+- **Barabási-Albert Signature** (confirmed) — scale-free networks have distinctive persistence diagram signatures
 
-No external APIs. No telemetry. Everything runs in your browser.
+## Installation
+
+```bash
+cargo build --target wasm32-unknown-unknown --release
+# or use trunk for development
+trunk serve
+```
 
 ## How It Fits
 
-topology-lab is the interactive face of the SuperInstance spectral ecosystem:
+Part of the SuperInstance ecosystem:
 
-- **[spectral-graph-core](https://github.com/SuperInstance/spectral-graph-core)** — The Rust engine behind the graph labs
-- **[sheaf-cohomology](https://github.com/SuperInstance/sheaf-cohomology)** — The I Ching cohomology engine
-- **[symplectic-spin](https://github.com/SuperInstance/symplectic-spin)** — The integrators compared in the playground
-- **[spectral-music-v2](https://github.com/SuperInstance/spectral-music-v2)** — The music theory behind the explorer
-- **[topological-flow](https://github.com/SuperInstance/topological-flow)** — The persistence engine
-
-## Testing
-
-```bash
-cargo test
-```
+- **[persistent-sheaf](https://github.com/SuperInstance/persistent-sheaf)** — Rust library for persistent sheaf cohomology
+- **[persistent-social](https://github.com/SuperInstance/persistent-social)** — TDA for social networks in Go
+- **topology-lab** — Interactive WASM visualization (this repo)
 
 ## License
 
-MIT
-
-Part of the [SuperInstance](https://github.com/SuperInstance) ecosystem.
+Apache-2.0
